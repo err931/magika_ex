@@ -1,6 +1,8 @@
 defmodule MagikaEx.Native do
+  @moduledoc false
+
   use Rustler, otp_app: :magika_ex, crate: "magika_nif"
 
-  # When your NIF is loaded, it will override this function.
-  def add(_a, _b), do: :erlang.nif_error(:nif_not_loaded)
+  def new, do: :erlang.nif_error(:nif_not_loaded)
+  def identify_bytes(_resource, _data), do: :erlang.nif_error(:nif_not_loaded)
 end
