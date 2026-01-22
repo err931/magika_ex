@@ -1,0 +1,20 @@
+[package]
+name = "magika_nif"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+magika = "1.0.0"
+
+[dependencies.ort]
+version = "=2.0.0-rc.10"
+default-features = false
+features = ["download-binaries"]
+
+[dependencies.rustler]
+version = "0.37.2"
+features = ["nif_version_2_17"]
