@@ -25,7 +25,7 @@ end
 ## Usage
 
 ```elixir
-iex> {:ok, result} = MagikaEx.identify_file("path/to/file")
+iex> {:ok, result} = MagikaEx.identify_path("path/to/file")
 ...> IO.puts("Detected type: #{result.label}")
 ```
 
