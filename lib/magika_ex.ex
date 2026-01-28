@@ -1,44 +1,47 @@
 defmodule MagikaEx do
   @moduledoc """
-  MagikaEx is an Elixir wrapper for Google's Magika, a deep-learning-based content-type detection tool.
+  Provides the main interface for using Magika to identify the content type of
+  files or binary data.
 
-  This module uses a `GenServer` to manage a native Magika session resource, ensuring safe
-  and efficient access to the underlying Rust-based identification engine.
+  This module offers functions that wrap the Magika engine and allow you to
+  classify file contents in an efficient and convenient way.
   """
 
   use GenServer
+
   alias MagikaEx.Native
 
-  @name __MODULE__
+  @type option :: GenServer.option()
 
-  @doc """
-  Starts the `MagikaEx` GenServer.
-
-  This initializes the native Magika session required for content identification.
-  """
+  @spec start_link([option()]) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    opts = Keyword.put_new(opts, :name, @name)
+    opts = Keyword.put_new(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
   @doc """
-  Identifies the content type of the given binary data.
-
-  Returns a `%MagikaEx.Result{}` struct containing details such as the label, score, and group.
+  Identify the data type of raw bytes.
   """
+  @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_bytes(data) when is_binary(data) do
-    resource = GenServer.call(@name, :get_resource)
-    Native.identify_bytes(resource, data)
+    resource = GenServer.call(__MODULE__, :get_resource)
+
+    case Native.identify_bytes(resource, data) do
+      {:error, _} = err -> err
+      result -> {:ok, result}
+    end
   end
 
   @doc """
-  Identifies the content type of a file at the specified path.
-
-  Returns `{:ok, %MagikaEx.Result{}}` on success or `{:error, reason}` if the file cannot be read.
+  Identify the data type of a file given its path.
   """
-  def identify_path(path) do
-    with {:ok, binary} <- File.read(path) do
-      {:ok, identify_bytes(binary)}
+  @spec identify_path(String.t()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
+  def identify_path(path) when is_binary(path) do
+    with {:ok, data} <- File.read(path),
+         {:ok, result} <- identify_bytes(data) do
+      {:ok, result}
+    else
+      {:error, _} = err -> err
     end
   end
 
@@ -61,15 +64,30 @@ end
 
 defmodule MagikaEx.Result do
   @moduledoc """
-  A struct representing the identification result from Magika.
-
-  Fields:
-  * `:label` - The detected content type label (e.g., "python").
-  * `:score` - The confidence score for the prediction.
-  * `:mime_type` - The associated MIME type (e.g., "text/x-python").
-  * `:group` - The high-level category of the content (e.g., "code", "image").
-  * `:description` - A human-readable description of the detected type.
-  * `:is_text` - Boolean indicating whether the content is text-based.
+  File type information with inference scoring.
   """
-  defstruct [:label, :score, :mime_type, :group, :description, :is_text]
+
+  @typedoc "A struct representing the identification result from Magika."
+  @type t :: %__MODULE__{
+          label: String.t(),
+          mime_type: String.t(),
+          group: String.t(),
+          description: String.t(),
+          score: float(),
+          is_text: boolean()
+        }
+
+  @doc """
+  File type information.
+
+  ## Fields
+  * `:label` - The unique label identifying this file type.
+  * `:mime_type` - The MIME type of the file type.
+  * `:group` - The group of the file type.
+  * `:description` - The description of the file type.
+  * `:score` - The inference score between 0 and 1.
+  * `:is_text` - Whether the file type is text.
+  """
+  @enforce_keys [:label, :mime_type, :group, :description, :score, :is_text]
+  defstruct [:label, :mime_type, :group, :description, :score, :is_text]
 end
