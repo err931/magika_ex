@@ -25,11 +25,7 @@ defmodule MagikaEx do
   @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_bytes(data) when is_binary(data) do
     resource = GenServer.call(__MODULE__, :get_resource)
-
-    case Native.identify_bytes(resource, data) do
-      {:error, _} = err -> err
-      result -> {:ok, result}
-    end
+    {:ok, Native.identify_bytes(resource, data)}
   end
 
   @doc """
@@ -37,11 +33,8 @@ defmodule MagikaEx do
   """
   @spec identify_path(String.t()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_path(path) when is_binary(path) do
-    with {:ok, data} <- File.read(path),
-         {:ok, result} <- identify_bytes(data) do
-      {:ok, result}
-    else
-      {:error, _} = err -> err
+    with {:ok, binary} <- File.read(path) do
+      identify_bytes(binary)
     end
   end
 
