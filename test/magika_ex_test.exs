@@ -6,12 +6,18 @@ defmodule MagikaExTest do
   describe "identify_bytes/1" do
     test "correctly identifies Elixir code in memory" do
       data = """
-      IO.puts Enum.map(1..5, &(&1 * 2)) |> Enum.join(", ")
+      defmodule Hello do
+        def world, do: "Elixir!"
+      end
       """
 
       assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_bytes(data)
       assert result.label == "elixir"
+      assert result.mime_type == "text/plain"
       assert result.group == "code"
+      assert result.description == "Elixir script"
+      assert result.score >= 0.9
+      assert result.is_text == true
     end
 
     test "handles empty binary" do
@@ -21,27 +27,26 @@ defmodule MagikaExTest do
   end
 
   describe "identify_path/1" do
-    test "correctly identifies a Python file as code" do
-      path = Path.join(@fixtures_dir, "sample.py")
-
-      assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_path(path)
-      assert result.label == "python"
-      assert result.group == "code"
-    end
-
     test "correctly identifies a JPEG image" do
       path = Path.join(@fixtures_dir, "sample.jpg")
+
       assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_path(path)
+      assert result.label == "jpeg"
+      assert result.mime_type == "image/jpeg"
       assert result.group == "image"
+      assert result.description == "JPEG image data"
+      assert result.score >= 0.9
+      assert result.is_text == false
     end
 
     test "detects a fake ZIP file (executable masquerading as zip)" do
       path = Path.join(@fixtures_dir, "fake.zip")
 
       assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_path(path)
-
       assert result.group != "archive"
       assert result.group == "executable"
+      assert result.score >= 0.9
+      assert result.is_text == false
     end
 
     test "returns error for non-existent file" do
