@@ -25,7 +25,7 @@ defmodule MagikaEx do
   @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_bytes(data) when is_binary(data) do
     resource = GenServer.call(__MODULE__, :get_resource)
-    {:ok, Native.identify_bytes(resource, data)}
+    Native.identify_bytes(resource, data)
   end
 
   @doc """
@@ -40,10 +40,8 @@ defmodule MagikaEx do
 
   @impl true
   def init(:ok) do
-    case Native.new() do
-      resource when is_reference(resource) ->
-        {:ok, resource}
-    end
+    {:ok, resource} = Native.new()
+    {:ok, resource}
   end
 
   @impl true

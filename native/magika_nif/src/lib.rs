@@ -1,6 +1,7 @@
 use magika::Session;
-use rustler::{Binary, Env, NifResult, Resource, ResourceArc, Term};
 use std::sync::Mutex;
+
+use rustler::{Binary, Env, Resource, ResourceArc, Term};
 
 struct MagikaResource {
     session: Mutex<Session>,
@@ -32,10 +33,8 @@ struct MagikaResult {
 }
 
 #[rustler::nif]
-fn new() -> NifResult<ResourceArc<MagikaResource>> {
-    let session = Session::new().map_err(|e| {
-        rustler::Error::Term(Box::new(format!("Failed to create Magika session: {e:?}")))
-    })?;
+fn new() -> Result<ResourceArc<MagikaResource>, String> {
+    let session = Session::new().map_err(|e| e.to_string())?;
 
     Ok(ResourceArc::new(MagikaResource {
         session: Mutex::new(session),
@@ -43,15 +42,18 @@ fn new() -> NifResult<ResourceArc<MagikaResource>> {
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn identify_bytes(resource: ResourceArc<MagikaResource>, data: Binary) -> NifResult<MagikaResult> {
+fn identify_bytes(
+    resource: ResourceArc<MagikaResource>,
+    data: Binary,
+) -> Result<MagikaResult, String> {
     let mut session = resource
         .session
         .lock()
-        .map_err(|_| rustler::Error::Term(Box::new("Failed to lock magika session mutex")))?;
+        .map_err(|_| "Failed to lock magika session mutex")?;
 
     let result = session
         .identify_content_sync(data.as_slice())
-        .map_err(|e| rustler::Error::Term(Box::new(format!("Magika error: {e:?}"))))?;
+        .map_err(|e| e.to_string())?;
 
     let info = result.info();
 
