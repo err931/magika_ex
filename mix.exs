@@ -35,6 +35,8 @@ defmodule MagikaEx.MixProject do
 
   defp deps do
     [
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:rustler, "~> 0.37.1", runtime: false}
     ]

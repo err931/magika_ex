@@ -3,28 +3,19 @@ defmodule MagikaExTest do
 
   @fixtures_dir Path.expand("fixtures", __DIR__)
 
-  setup_all do
-    start_supervised!(MagikaEx)
-    :ok
-  end
-
   describe "identify_bytes/1" do
     test "correctly identifies Elixir code in memory" do
       data = """
       IO.puts Enum.map(1..5, &(&1 * 2)) |> Enum.join(", ")
       """
 
-      result = MagikaEx.identify_bytes(data)
-
-      assert %MagikaEx.Result{} = result
+      assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_bytes(data)
       assert result.label == "elixir"
       assert result.group == "code"
     end
 
     test "handles empty binary" do
-      result = MagikaEx.identify_bytes("")
-      assert %MagikaEx.Result{} = result
-
+      assert {:ok, %MagikaEx.Result{} = result} = MagikaEx.identify_bytes("")
       assert result.label == "empty"
     end
   end
