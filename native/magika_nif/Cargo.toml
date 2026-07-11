@@ -8,6 +8,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-magika = "1.0.1"
-ort = "=2.0.0-rc.11"
-rustler = "0.37.3"
+magika = "1.1.0"
+ort = "=2.0.0-rc.12"
+rustler = "0.38.0"
