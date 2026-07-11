@@ -1,7 +1,7 @@
 defmodule MagikaEx.MixProject do
   use Mix.Project
 
-  @source_url "https://git.sr.ht/~err931/magika_ex"
+  @source_url "https://github.com/err931/magika_ex"
   @version "0.1.2"
 
   def project do
@@ -28,7 +28,7 @@ defmodule MagikaEx.MixProject do
     [
       maintainers: ["Minoru Maekawa"],
       licenses: ["Apache-2.0"],
-      links: %{"SourceHut" => @source_url},
+      links: %{"GitHub" => @source_url},
       files: ~w(lib native .formatter.exs mix.exs README.md LICENSE)
     ]
   end
