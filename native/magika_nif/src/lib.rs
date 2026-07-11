@@ -65,10 +65,7 @@ fn identify_bytes(
     resource: ResourceArc<MagikaResource>,
     data: Binary,
 ) -> Result<MagikaResult, String> {
-    let mut session = resource
-        .session
-        .lock()
-        .map_err(|_| "Failed to lock magika session mutex")?;
+    let mut session = resource.session.lock().map_err(|e| e.to_string())?;
 
     session
         .identify_content_sync(data.as_slice())
@@ -81,10 +78,7 @@ fn identify_path(
     resource: ResourceArc<MagikaResource>,
     path: String,
 ) -> Result<MagikaResult, String> {
-    let mut session = resource
-        .session
-        .lock()
-        .map_err(|_| "Failed to lock magika session mutex")?;
+    let mut session = resource.session.lock().map_err(|e| e.to_string())?;
 
     session
         .identify_file_sync(PathBuf::from(path))
