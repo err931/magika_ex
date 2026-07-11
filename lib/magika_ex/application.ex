@@ -5,11 +5,9 @@ defmodule MagikaEx.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      {MagikaEx, name: MagikaEx}
-    ]
+    {:ok, resource} = MagikaEx.Native.new()
+    :persistent_term.put({MagikaEx, :resource}, resource)
 
-    opts = [strategy: :one_for_one, name: MagikaEx.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link([], strategy: :one_for_one)
   end
 end

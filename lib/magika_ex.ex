@@ -7,24 +7,14 @@ defmodule MagikaEx do
   classify file contents in an efficient and convenient way.
   """
 
-  use GenServer
-
   alias MagikaEx.Native
-
-  @type option :: GenServer.option()
-
-  @spec start_link([option()]) :: GenServer.on_start()
-  def start_link(opts \\ []) do
-    opts = Keyword.put_new(opts, :name, __MODULE__)
-    GenServer.start_link(__MODULE__, :ok, opts)
-  end
 
   @doc """
   Identify the data type of raw bytes.
   """
   @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_bytes(data) when is_binary(data) do
-    resource = GenServer.call(__MODULE__, :get_resource)
+    resource = :persistent_term.get({__MODULE__, :resource})
     Native.identify_bytes(resource, data)
   end
 
@@ -36,17 +26,6 @@ defmodule MagikaEx do
     with {:ok, binary} <- File.read(path) do
       identify_bytes(binary)
     end
-  end
-
-  @impl true
-  def init(:ok) do
-    {:ok, resource} = Native.new()
-    {:ok, resource}
-  end
-
-  @impl true
-  def handle_call(:get_resource, _from, resource) do
-    {:reply, resource, resource}
   end
 end
 
