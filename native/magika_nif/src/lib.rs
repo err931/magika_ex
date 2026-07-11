@@ -1,7 +1,21 @@
 use std::{path::PathBuf, sync::Mutex};
 
-use magika::Session;
+use magika::{FileType, Session};
 use rustler::{Binary, Env, Resource, ResourceArc, Term};
+
+impl From<FileType> for MagikaResult {
+    fn from(result: FileType) -> Self {
+        let info = result.info();
+        MagikaResult {
+            label: info.label.into(),
+            mime_type: info.mime_type.into(),
+            group: info.group.into(),
+            description: info.description.into(),
+            score: result.score(),
+            is_text: info.is_text,
+        }
+    }
+}
 
 struct MagikaResource {
     session: Mutex<Session>,
@@ -56,20 +70,10 @@ fn identify_bytes(
         .lock()
         .map_err(|_| "Failed to lock magika session mutex")?;
 
-    let result = session
+    session
         .identify_content_sync(data.as_slice())
-        .map_err(|e| e.to_string())?;
-
-    let info = result.info();
-
-    Ok(MagikaResult {
-        label: info.label.into(),
-        mime_type: info.mime_type.into(),
-        group: info.group.into(),
-        description: info.description.into(),
-        score: result.score(),
-        is_text: info.is_text,
-    })
+        .map(MagikaResult::from)
+        .map_err(|e| e.to_string())
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
@@ -82,22 +86,10 @@ fn identify_path(
         .lock()
         .map_err(|_| "Failed to lock magika session mutex")?;
 
-    let path_buf = PathBuf::from(path);
-
-    let result = session
-        .identify_file_sync(&path_buf)
-        .map_err(|e| e.to_string())?;
-
-    let info = result.info();
-
-    Ok(MagikaResult {
-        label: info.label.into(),
-        mime_type: info.mime_type.into(),
-        group: info.group.into(),
-        description: info.description.into(),
-        score: result.score(),
-        is_text: info.is_text,
-    })
+    session
+        .identify_file_sync(PathBuf::from(path))
+        .map(MagikaResult::from)
+        .map_err(|e| e.to_string())
 }
 
 fn on_load(env: Env, _info: Term) -> bool {
