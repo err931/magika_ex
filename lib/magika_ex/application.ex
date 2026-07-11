@@ -8,6 +8,6 @@ defmodule MagikaEx.Application do
     {:ok, resource} = MagikaEx.Native.new()
     :persistent_term.put({MagikaEx, :resource}, resource)
 
-    Supervisor.start_link([], strategy: :one_for_one)
+    Supervisor.start_link([], strategy: :one_for_one, name: MagikaEx.Supervisor)
   end
 end
