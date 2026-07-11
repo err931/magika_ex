@@ -1,10 +1,13 @@
 use magika::Session;
-use rustler::{Binary, Env, NifResult, ResourceArc, Term};
+use rustler::{Binary, Env, NifResult, Resource, ResourceArc, Term};
 use std::sync::Mutex;
 
 struct MagikaResource {
     session: Mutex<Session>,
 }
+
+#[rustler::resource_impl]
+impl Resource for MagikaResource {}
 
 #[derive(rustler::NifStruct)]
 #[module = "MagikaEx.Result"]
@@ -31,10 +34,7 @@ struct MagikaResult {
 #[rustler::nif]
 fn new() -> NifResult<ResourceArc<MagikaResource>> {
     let session = Session::new().map_err(|e| {
-        rustler::Error::Term(Box::new(format!(
-            "Failed to create Magika session: {:?}",
-            e
-        )))
+        rustler::Error::Term(Box::new(format!("Failed to create Magika session: {e:?}")))
     })?;
 
     Ok(ResourceArc::new(MagikaResource {
@@ -51,7 +51,7 @@ fn identify_bytes(resource: ResourceArc<MagikaResource>, data: Binary) -> NifRes
 
     let result = session
         .identify_content_sync(data.as_slice())
-        .map_err(|e| rustler::Error::Term(Box::new(format!("Magika error: {:?}", e))))?;
+        .map_err(|e| rustler::Error::Term(Box::new(format!("Magika error: {e:?}"))))?;
 
     let info = result.info();
 
@@ -65,10 +65,8 @@ fn identify_bytes(resource: ResourceArc<MagikaResource>, data: Binary) -> NifRes
     })
 }
 
-#[allow(non_local_definitions)]
 fn on_load(env: Env, _info: Term) -> bool {
-    let _ = rustler::resource!(MagikaResource, env);
-    true
+    env.register::<MagikaResource>().is_ok()
 }
 
 rustler::init!("Elixir.MagikaEx.Native", load = on_load);
