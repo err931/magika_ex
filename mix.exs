@@ -2,7 +2,7 @@ defmodule MagikaEx.MixProject do
   use Mix.Project
 
   @source_url "https://git.sr.ht/~err931/magika_ex"
-  @version "0.1.1"
+  @version "0.1.2"
 
   def project do
     [
