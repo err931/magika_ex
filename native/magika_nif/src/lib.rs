@@ -9,11 +9,22 @@ struct MagikaResource {
 #[derive(rustler::NifStruct)]
 #[module = "MagikaEx.Result"]
 struct MagikaResult {
+    /// The unique label identifying this file type.
     pub label: String,
-    pub score: f32,
+
+    /// The MIME type of the file type.
     pub mime_type: String,
+
+    /// The group of the file type.
     pub group: String,
+
+    /// The description of the file type.
     pub description: String,
+
+    /// The inference score between 0 and 1.
+    pub score: f32,
+
+    /// Whether the file type is text.
     pub is_text: bool,
 }
 
@@ -47,10 +58,10 @@ fn identify_bytes(resource: ResourceArc<MagikaResource>, data: Binary) -> NifRes
 
     let response = MagikaResult {
         label: info.label.to_string(),
-        score: score,
         mime_type: info.mime_type.to_string(),
         group: info.group.to_string(),
         description: info.description.to_string(),
+        score,
         is_text: info.is_text,
     };
 
