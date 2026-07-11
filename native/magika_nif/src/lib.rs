@@ -54,18 +54,15 @@ fn identify_bytes(resource: ResourceArc<MagikaResource>, data: Binary) -> NifRes
         .map_err(|e| rustler::Error::Term(Box::new(format!("Magika error: {:?}", e))))?;
 
     let info = result.info();
-    let score = result.score();
 
-    let response = MagikaResult {
-        label: info.label.to_string(),
-        mime_type: info.mime_type.to_string(),
-        group: info.group.to_string(),
-        description: info.description.to_string(),
-        score,
+    Ok(MagikaResult {
+        label: info.label.into(),
+        mime_type: info.mime_type.into(),
+        group: info.group.into(),
+        description: info.description.into(),
+        score: result.score(),
         is_text: info.is_text,
-    };
-
-    Ok(response)
+    })
 }
 
 #[allow(non_local_definitions)]
