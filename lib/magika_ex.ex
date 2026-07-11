@@ -10,6 +10,14 @@ defmodule MagikaEx do
   alias MagikaEx.Native
 
   @doc """
+  Returns the name of the Magika model currently in use.
+  """
+  @spec model_name() :: String.t()
+  def model_name do
+    Native.model_name()
+  end
+
+  @doc """
   Identify the data type of raw bytes.
   """
   @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}

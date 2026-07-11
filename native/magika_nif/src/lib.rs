@@ -41,6 +41,11 @@ fn new() -> Result<ResourceArc<MagikaResource>, String> {
     }))
 }
 
+#[rustler::nif]
+fn model_name() -> &'static str {
+    magika::MODEL_NAME
+}
+
 #[rustler::nif(schedule = "DirtyCpu")]
 fn identify_bytes(
     resource: ResourceArc<MagikaResource>,

@@ -3,6 +3,12 @@ defmodule MagikaExTest do
 
   @fixtures_dir Path.expand("fixtures", __DIR__)
 
+  describe "model_name/0" do
+    test "uses the expected Magika model version" do
+      assert MagikaEx.model_name() == "standard_v3_3"
+    end
+  end
+
   describe "identify_bytes/1" do
     test "correctly identifies Elixir code in memory" do
       data = """
