@@ -7,8 +7,8 @@ This module is community-made and is **NOT an official Google project**.
 ## Prerequisites
 
 - Elixir 1.18+
-- Erlang/OTP 26+
-- Rust 1.92.0+
+- Erlang/OTP 28+
+- Rust 1.96.0+
 
 ## Installation
 
