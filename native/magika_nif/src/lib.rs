@@ -1,6 +1,6 @@
-use magika::Session;
-use std::sync::Mutex;
+use std::{path::PathBuf, sync::Mutex};
 
+use magika::Session;
 use rustler::{Binary, Env, Resource, ResourceArc, Term};
 
 struct MagikaResource {
@@ -58,6 +58,34 @@ fn identify_bytes(
 
     let result = session
         .identify_content_sync(data.as_slice())
+        .map_err(|e| e.to_string())?;
+
+    let info = result.info();
+
+    Ok(MagikaResult {
+        label: info.label.into(),
+        mime_type: info.mime_type.into(),
+        group: info.group.into(),
+        description: info.description.into(),
+        score: result.score(),
+        is_text: info.is_text,
+    })
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
+fn identify_path(
+    resource: ResourceArc<MagikaResource>,
+    path: String,
+) -> Result<MagikaResult, String> {
+    let mut session = resource
+        .session
+        .lock()
+        .map_err(|_| "Failed to lock magika session mutex")?;
+
+    let path_buf = PathBuf::from(path);
+
+    let result = session
+        .identify_file_sync(&path_buf)
         .map_err(|e| e.to_string())?;
 
     let info = result.info();

@@ -31,8 +31,11 @@ defmodule MagikaEx do
   """
   @spec identify_path(String.t()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_path(path) when is_binary(path) do
-    with {:ok, binary} <- File.read(path) do
-      identify_bytes(binary)
+    if File.exists?(path) do
+      resource = :persistent_term.get({__MODULE__, :resource})
+      Native.identify_path(resource, path)
+    else
+      {:error, :enoent}
     end
   end
 end
