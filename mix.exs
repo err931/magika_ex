@@ -1,28 +1,50 @@
 defmodule MagikaEx.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/err931/magika_ex"
+  @version "0.1.0"
+
   def project do
     [
       app: :magika_ex,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: "Elixir NIF wrapper for google/magika",
+      package: package(),
+      docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {MagikaEx.Application, []}
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
+  defp package do
+    [
+      maintainers: ["Minoru Maekawa"],
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => @source_url},
+      files: ~w(lib native .formatter.exs mix.exs README.md LICENSE)
+    ]
+  end
+
   defp deps do
     [
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:rustler, "~> 0.37.1", runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md", "LICENSE"],
+      source_ref: "v#{@version}"
     ]
   end
 end
