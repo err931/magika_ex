@@ -19,6 +19,8 @@ defmodule MagikaEx do
 
   @doc """
   Identify the data type of raw bytes.
+
+  Returns `{:ok, result}` on success or `{:error, reason}` if identification fails.
   """
   @spec identify_bytes(binary()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_bytes(data) when is_binary(data) do
@@ -28,6 +30,9 @@ defmodule MagikaEx do
 
   @doc """
   Identify the data type of a file given its path.
+
+  Returns `{:error, :enoent}` if the file does not exist before identification.
+  Other identification errors are returned as `{:error, reason}`.
   """
   @spec identify_path(String.t()) :: {:ok, MagikaEx.Result.t()} | {:error, term}
   def identify_path(path) when is_binary(path) do
